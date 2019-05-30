@@ -78,7 +78,8 @@ function openVideo(){
                         .then(readVideo)
                         .catch(function(err){
                           console.log(err);
-                          stopVideo();
+                          slider.checked = true;
+                          loadSelectedCanvas();
                         });
 };
 
