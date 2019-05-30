@@ -16,7 +16,6 @@ function detectFace(objSrc, objId, container, camera){
       console.log('detecting..')
       prepareCanvas(objSrc);
       event.data.forEach(function(rect) {
-        console.log('found one!')
         drawOnCanvas(rect, objSrc);
       });
     });
@@ -35,7 +34,6 @@ function prepareCanvas(objSrc){
 function drawOnCanvas(rect, objSrc) {
   var canvas = document.getElementById('canvas');
   var context = canvas.getContext('2d');
-  console.log(base_image);
   context.drawImage(base_image, rect.x, rect.y, rect.width, rect.height);
   console.log('faces!');
 };
