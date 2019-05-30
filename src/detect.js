@@ -92,7 +92,7 @@ function readVideo(stream){
 
 function stopVideo(err){
   var video = document.getElementById("video")
-  if (video.srcObject) {
+  if (video && video.srcObject) {
     video.srcObject.getTracks().forEach(function(track){track.stop();});
   }
 };
