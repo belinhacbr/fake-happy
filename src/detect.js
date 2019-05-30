@@ -1,44 +1,56 @@
-function removeFaces(){
-  var faces = document.getElementsByClassName('smiley');
-  Array.from(faces).forEach(function(face) {
-    face.parentNode.removeChild(face);
-    console.log('removed');
-  });
-};
+const slider = document.getElementById("slider-input");
+const fileUpload = document.getElementById('fileUpload');
 
-function detectFace(){
-    removeFaces();
+const base_image = new Image();
+base_image.src = 'assets/smiley.png';
+
+function detectFace(objSrc, objId, container, camera){
+    console.log('Reading ' + objId);
+    prepareCanvas(objSrc);
     var tracker = new tracking.ObjectTracker('face');
-    var img = document.getElementById('img');
-    tracker.setStepSize(2.0);
-    tracking.track('#img', tracker);
+    tracker.setStepSize(1.5);
+    tracker.setInitialScale(4);
+    tracker.setEdgesDensity(0.1);
+    tracking.track(objId, tracker, {camera : camera});
     tracker.on('track', function(event) {
+      console.log('detecting..')
+      prepareCanvas(objSrc);
       event.data.forEach(function(rect) {
-        window.plot(rect.x, rect.y, rect.width, rect.height, '.img-container', img);
+        console.log('found one!')
+        drawOnCanvas(rect, objSrc);
       });
     });
-    window.plot = function(x, y, w, h) {
-      var rect = document.createElement('div');
-      document.querySelector('.img-container').appendChild(rect);
-      rect.classList.add('smiley');
-      rect.style.width = w + 'px';
-      rect.style.height = h + 'px';
-      rect.style.left = (img.offsetLeft + x) + 'px';
-      rect.style.top = (img.offsetTop + y) + 'px';
-      console.log('faces!');
-    };
 };
 
-var fileUpload = document.getElementById('fileUpload');
+
+function prepareCanvas(objSrc){
+  var canvas = document.getElementById('canvas');
+  var context = canvas.getContext('2d');
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  canvas.width = objSrc.width;
+  canvas.height = objSrc.height;
+};
+
+
+function drawOnCanvas(rect, objSrc) {
+  var canvas = document.getElementById('canvas');
+  var context = canvas.getContext('2d');
+  console.log(base_image);
+  context.drawImage(base_image, rect.x, rect.y, rect.width, rect.height);
+  console.log('faces!');
+};
+
 
 function readImage() {
     var img = document.getElementById('img');
+    slider.checked = true;
+    loadSelectedCanvas();
     if ( this.files && this.files[0] ) {
         var FR = new FileReader();
         FR.onload = function(e) {
            img.src = e.target.result;
            img.onload = function(){
-            detectFace();
+            detectFace(img, '#img', '.img-container');
           };
         };
         FR.readAsDataURL( this.files[0] );
@@ -46,6 +58,63 @@ function readImage() {
 };
 
 
+function reloadDetection(){
+  var img = document.getElementById('img');
+  detectFace(img, '#img', '.img-container');
+};
 
-window.onload = detectFace;
+
+function openVideo(){
+  const constraints = {
+                        audio: false,
+                        video: {
+                          facingMode: "user",
+                          width: 800,
+                          height: 400
+                        }
+                      };
+
+  navigator.mediaDevices.getUserMedia(constraints)
+                        .then(readVideo)
+                        .catch(function(err){
+                          console.log(err);
+                          stopVideo();
+                        });
+};
+
+
+function readVideo(stream){
+  window.stream = stream;
+  var video = document.getElementById("video")
+  video.srcObject = stream;
+  detectFace(video, '#video', '.cam-container', true);
+};
+
+
+function stopVideo(err){
+  var video = document.getElementById("video")
+  if (video.srcObject) {
+    video.srcObject.getTracks().forEach(function(track){track.stop();});
+  }
+};
+
+
+function loadSelectedCanvas(){
+  console.log(slider.checked ? 'selected img' : 'selected cam')
+  var frame = document.getElementById('frame');
+
+  if (slider.checked == true) {
+    stopVideo();
+    const imgHTML = "<div class='img-container'><img id='img' src='assets/band.jpg' onclick='reloadDetection()'/></div>"
+    frame.innerHTML = imgHTML;
+    readImage();
+  } else {
+    const videoHTML = "<div class='cam-container'><video id='video' width='800' height='400' preload autoplay loop muted></video></div>"
+    frame.innerHTML = videoHTML;
+    openVideo();
+  }
+};
+
+slider.onchange = loadSelectedCanvas;
 fileUpload.onchange = readImage;
+window.onload = reloadDetection;

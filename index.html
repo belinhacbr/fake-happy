@@ -14,19 +14,33 @@
     <p>> I bet everybody here is fake happy too</p>
   </div>
 
-  <div class="img-frame">
-    <div class="img-container">
-      <img id="img" src="assets/band.jpg" onclick="detectFace();"/>
+  <div class="switch-container">
+    <label class="switch-label">Webcam</label>
+    <label class="switch">
+      <input type="checkbox" id="slider-input" checked>
+      <span class="slider round"></span>
+    </label>
+    <label class="switch-label">Image Upload</label>
+  </div>
+
+  <div class="detection">
+    <div class="detection-container">
+      <div id='frame' class="frame">
+        <div class='img-container'>
+          <img id='img' src='assets/band.jpg' onclick='reloadDetection()'/>
+        </div>
+      </div>
+      <canvas id="canvas" width="800" height="400"></canvas>
     </div>
   </div>
 
   <div class="input-container">
     <input type="file" id="fileUpload" class="input-file"/>
-    <label for="fileUpload" title="Make yours"> We're all so fake happy </label>
+    <label for="fileUpload" title="Make yours"> <i>We're</i> all so fake happy </label>
   </div>
 
   <div class='question-container'>
-    <a href="https://github.com/belinhacbr/fake-happy" title="What is this?">?</a>
+    <a href="https://github.com/belinhacbr/fake-happy" title="Oh! What's the use?">?</a>
   </div>
   <script src="src/detect.js"></script>
 </body>
