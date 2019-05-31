@@ -10,66 +10,54 @@ var _objId = '#img';
 var canvas = document.getElementById('canvas');
 var context = canvas.getContext('2d');
 
-function detectFace(camera){
-    var tracker = new tracking.ObjectTracker('face');
-    console.log('Reading ' + _objId);
-    prepareCanvas();
-    prepareTracker(tracker, camera);
-    tracker.on('track', track);
-};
 
-function track(event){
-    prepareCanvas();
-    event.data.forEach(function(rect) {
-        drawOnCanvas(rect);
-    });
-};
-
-
-function prepareTracker(tracker, camera){
-  tracker.setStepSize(1.5);
-  tracker.setInitialScale(4);
-  tracker.setEdgesDensity(0.1);
-  tracking.track(_objId, tracker, {camera: camera});
+async function detectFace(){
+  console.log('detecting ' + _objId);
+  const displaySize = { width: _objSrc.width, height: _objSrc.height }
+  prepareCanvas(displaySize);
+  const detections = await faceapi.detectAllFaces(_objSrc)
+  const resizedDetections = faceapi.resizeResults(detections, displaySize)
+  console.log(resizedDetections)
+  // faceapi.draw.drawDetections(canvas, resizedDetections)
+  resizedDetections.forEach(function (face) {  drawOnCanvas(face.box); });
 }
 
+function prepareCanvas(displaySize){
+  const canvas = document.getElementById('canvas')
+  faceapi.matchDimensions(canvas, displaySize)
+}
 
-function prepareCanvas(){
-  context.save();
-  context.clearRect(0, 0, canvas.width, canvas.height);
-  canvas.width = _objSrc.width;
-  canvas.height = _objSrc.height;
-  context.restore();
-};
-
-
-function drawOnCanvas(rect) {
-  context.drawImage(base_image, rect.x, rect.y, rect.width, rect.height);
+function drawOnCanvas(box) {
+  var imgSize = Math.max(box.width, box.height);
+  context.drawImage(base_image, box.x, box.y, imgSize, imgSize);
   console.log('faces!');
 };
 
 
-function readImage() {
+function loadImage() {
     var img = document.getElementById('img');
+    const displaySize = { width: img.width, height: img.height }
+    prepareCanvas(displaySize);
     if ( this.files && this.files[0] ) {
         var FR = new FileReader();
         FR.onload = function(e) {
            img.src = e.target.result;
-           img.onload = function(){
-            detectFace(false);
-          };
+           img.onload = readImage();
         };
         FR.readAsDataURL( this.files[0] );
     }
 };
 
+async function readImage(){
+  await faceapi.loadSsdMobilenetv1Model('weights/');
+  detectFace();
+}
 
-function reloadDetection(){
-  detectFace(false);
-};
+async function openVideo(){
 
+  await faceapi.loadMtcnnModel('weights/');
+  // await faceapi.loadFaceRecognitionModel('weights/');
 
-function openVideo(){
   const constraints = {
                         audio: false,
                         video: {
@@ -78,7 +66,6 @@ function openVideo(){
                           height: 400
                         }
                       };
-
   navigator.mediaDevices.getUserMedia(constraints)
                         .then(readVideo)
                         .catch(function(err){
@@ -93,9 +80,17 @@ function readVideo(stream){
   window.stream = stream;
   var video = document.getElementById("video")
   video.srcObject = stream;
-  detectFace(true);
+  onPlay(video);
 };
 
+function onPlay(video) {
+  if (!slider.checked){
+    detectFace();
+    setTimeout(() => onPlay(video), 10);
+  } else {
+    console.log('stopping video detection');
+  }
+}
 
 function stopVideo(){
   var video = document.getElementById("video")
@@ -117,7 +112,7 @@ function loadSelectedCanvas(){
     document.getElementById('img').parentElement.style.display = 'block';
     _objSrc = document.getElementById('img')
     _objId = '#img';
-    reloadDetection();
+    readImage();
   } else {
     document.getElementById('img').parentElement.style.display = 'none';
     document.getElementById('video').parentElement.style.display = 'block';
@@ -128,5 +123,5 @@ function loadSelectedCanvas(){
 };
 
 slider.onchange = loadSelectedCanvas;
-fileUpload.onchange = readImage;
-window.onload = reloadDetection;
+fileUpload.onchange = loadImage;
+window.onload = readImage;

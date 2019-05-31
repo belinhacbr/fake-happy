@@ -5,9 +5,7 @@
   <title>Oh please</title>
   <link rel="stylesheet" href="css/fake-happy.css">
 
-  <script src="lib/tracking-min.js"></script>
-  <script src="lib/face-min.js"></script>
-
+  <script src="lib/face-api.min.js"></script>
 </head>
 <body>
   <div class="top-title">
@@ -27,13 +25,13 @@
     <div class="detection-container">
       <div id='frame' class="frame">
         <div class='img-container'>
-          <img id='img' src='assets/band.jpg' onclick='reloadDetection()'/>
+          <img id='img' src='assets/band.jpg' onclick='detectFace()'/>
         </div>
         <div class='cam-container' style="display: none;">
           <video id='video' width='800' height='400' preload autoplay loop muted></video>
         </div>
       </div>
-      <canvas id="canvas" width="800" height="400"></canvas>
+      <canvas id="canvas"></canvas>
     </div>
   </div>
 
