@@ -1,8 +1,7 @@
 const slider = document.getElementById("slider-input");
 const fileUpload = document.getElementById('fileUpload');
 
-const base_image = new Image();
-base_image.src = 'assets/smiley.png';
+const smileys = [];
 
 var _objSrc = document.getElementById('img');
 var _objId = '#img';
@@ -10,6 +9,13 @@ var _objId = '#img';
 var canvas = document.getElementById('canvas');
 var context = canvas.getContext('2d');
 
+function loadAssets(){
+  for(var i=1; i<8; i++){
+    var smiley = new Image();
+    smiley.src = 'assets/smiley'+i+'.png';
+    smileys.push(smiley);
+  }
+}
 
 async function detectFace(){
   console.log('detecting ' + _objId);
@@ -28,8 +34,17 @@ function prepareCanvas(displaySize){
 }
 
 function drawOnCanvas(box) {
-  var imgSize = Math.max(box.width, box.height);
-  context.drawImage(base_image, box.x, box.y, imgSize, imgSize);
+  var base_image = smileys[Math.floor(Math.random()*smileys.length)];
+  var imgSize = Math.max(box.width, box.height) * 1.15;
+  cx = box.x + box.width/2;
+  cy = box.y + box.height/2;
+  px = cx - imgSize/2;
+  py = cy - imgSize/2;
+  context.drawImage(base_image, px, py, imgSize, imgSize);
+  // context.fillStyle = 'green';
+  // context.fillRect(px, py, 5, 5);
+  // context.fillStyle = 'red';
+  // context.fillRect(cx, cy, 5, 5);
   console.log('faces!');
 };
 
@@ -49,6 +64,7 @@ function loadImage() {
 };
 
 async function readImage(){
+  loadAssets();
   await faceapi.loadSsdMobilenetv1Model('weights/');
   detectFace();
 }
@@ -56,7 +72,6 @@ async function readImage(){
 async function openVideo(){
 
   await faceapi.loadMtcnnModel('weights/');
-  // await faceapi.loadFaceRecognitionModel('weights/');
 
   const constraints = {
                         audio: false,
