@@ -19,7 +19,7 @@ function loadAssets(){
 
 async function detectFace(){
   console.log('detecting ' + _objId);
-  const displaySize = { width: _objSrc.width, height: _objSrc.height }
+  const displaySize = { width: _objSrc.clientWidth, height: _objSrc.clientHeight }
   prepareCanvas(displaySize);
   const detections = await faceapi.detectAllFaces(_objSrc)
   const resizedDetections = faceapi.resizeResults(detections, displaySize)
@@ -76,9 +76,7 @@ async function openVideo(){
   const constraints = {
                         audio: false,
                         video: {
-                          facingMode: "user",
-                          width: canvas.clientWidth,
-                          height: canvas.clientHeight
+                          facingMode: "user"
                         }
                       };
   navigator.mediaDevices.getUserMedia(constraints)
