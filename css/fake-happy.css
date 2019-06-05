@@ -67,10 +67,11 @@ body {
   display: inline-flex;
 }
 
-#img {
+.media-container {
   max-width: 800px;
   max-height: 70vh;
   margin: auto;
+  border: dotted white 2px;
 }
 
 canvas {

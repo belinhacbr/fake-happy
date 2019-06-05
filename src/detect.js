@@ -77,8 +77,8 @@ async function openVideo(){
                         audio: false,
                         video: {
                           facingMode: "user",
-                          width: 800,
-                          height: 400
+                          width: canvas.clientWidth,
+                          height: canvas.clientHeight
                         }
                       };
   navigator.mediaDevices.getUserMedia(constraints)
@@ -125,12 +125,14 @@ function loadSelectedCanvas(){
     stopVideo();
     document.getElementById('video').parentElement.style.display = 'none';
     document.getElementById('img').parentElement.style.display = 'block';
+    document.getElementById('input-container').style.display = 'block';
     _objSrc = document.getElementById('img')
     _objId = '#img';
     readImage();
   } else {
     document.getElementById('img').parentElement.style.display = 'none';
     document.getElementById('video').parentElement.style.display = 'block';
+    document.getElementById('input-container').style.display = 'none';
     _objSrc = document.getElementById('video')
     _objId = '#video';
     openVideo();
