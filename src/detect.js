@@ -74,7 +74,7 @@ async function readImage(){
 
 async function openVideo(){
 
-  await faceapi.loadMtcnnModel('weights/');
+  await faceapi.loadSsdMobilenetv1Model('weights/');
 
   const constraints = {
                         audio: false,
